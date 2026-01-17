@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <title>$GODOT_PROJECT_NAME</title>
+    <style>
+        html, body, #canvas { margin: 0; padding: 0; border: 0; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        body { touch-action: none; }
+        #canvas { display: block; width: 100%; height: 100%; }
+        #canvas:focus { outline: none; }
+        #status {
+            position: absolute;
+            left: 0; right: 0; top: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #status-progress { width: 50%; max-width: 300px; }
+    </style>
+    $GODOT_HEAD_INCLUDE
+</head>
+<body>
+    <canvas id="canvas">Your browser does not support the canvas tag.</canvas>
+
+    <div id="status">
+        <progress id="status-progress"></progress>
+        <div id="status-notice" style="display: none;"></div>
+    </div>
+
+    <script src="$GODOT_URL"></script>
+    <script>
+        window.GodotMobileInput = {
+            activeInput: null,
+            currentCallback: null,
+            inputCounter: 0,
+
+            createInput: function(placeholder, maxlength) {
+                this.inputCounter++;
+                var input = document.createElement('textarea');
+                input.id = 'godot-input-' + this.inputCounter;
+                input.placeholder = placeholder || '';
+                input.maxLength = maxlength || 1000;
+                input.style.cssText = 'position:absolute;left:-9999px;top:-9999px;opacity:0;pointer-events:none;font-size:16px;';
+                document.body.appendChild(input);
+                return input.id;
+            },
+
+            activateInput: function(inputId, callback) {
+                var input = document.getElementById(inputId);
+                if (!input || !callback) return false;
+
+                this.activeInput = input;
+                this.currentCallback = callback;
+
+                var self = this;
+                input._onInput = function(e) {
+                    if (self.currentCallback) {
+                        self.currentCallback({ type: 'text_changed', text: e.target.value });
+                    }
+                };
+                input._onFocus = function() {
+                    if (self.currentCallback) self.currentCallback({ type: 'focus_entered' });
+                };
+                input._onBlur = function() {
+                    if (self.currentCallback) self.currentCallback({ type: 'focus_exited' });
+                };
+
+                input.addEventListener('input', input._onInput);
+                input.addEventListener('focus', input._onFocus);
+                input.addEventListener('blur', input._onBlur);
+                input.focus();
+                return true;
+            },
+
+            deactivateInput: function(inputId) {
+                var input = document.getElementById(inputId);
+                if (!input) return;
+
+                if (input._onInput) input.removeEventListener('input', input._onInput);
+                if (input._onFocus) input.removeEventListener('focus', input._onFocus);
+                if (input._onBlur) input.removeEventListener('blur', input._onBlur);
+                input.blur();
+
+                if (this.activeInput === input) {
+                    this.activeInput = null;
+                    this.currentCallback = null;
+                }
+            },
+
+            destroyInput: function(inputId) {
+                var input = document.getElementById(inputId);
+                if (input) {
+                    this.deactivateInput(inputId);
+                    document.body.removeChild(input);
+                }
+            },
+
+            isMobile: function() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                    || ('ontouchstart' in window)
+                    || (navigator.maxTouchPoints > 0);
+            }
+        };
+
+        var GODOT_CONFIG = $GODOT_CONFIG;
+        var engine = new Engine(GODOT_CONFIG);
+        var statusProgress = document.getElementById('status-progress');
+        var statusNotice = document.getElementById('status-notice');
+        var status = document.getElementById('status');
+
+        engine.startGame({
+            'onProgress': function(current, total) {
+                if (total > 0) {
+                    statusProgress.value = current;
+                    statusProgress.max = total;
+                }
+            }
+        }).then(function() {
+            status.style.display = 'none';
+        }).catch(function(err) {
+            console.error(err);
+            statusNotice.textContent = err.message || 'Error loading';
+            statusNotice.style.display = 'block';
+            statusProgress.style.display = 'none';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://main.gd" id="1"]
+[ext_resource type="Script" path="res://mobile_text_edit.gd" id="2"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Mobile Virtual Keyboard Fix - MRP"
+horizontal_alignment = 1
+
+[node name="Instructions" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+text = "Test on Android Chrome or iOS Safari.
+Tap each text field and try typing with the virtual keyboard."
+horizontal_alignment = 1
+
+[node name="HSeparator1" type="HSeparator" parent="ScrollContainer/VBox"]
+layout_mode = 2
+
+[node name="Section1Label" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "TEST 1: Regular Viewport"
+
+[node name="Test1Container" type="HBoxContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="StandardBox" type="VBoxContainer" parent="ScrollContainer/VBox/Test1Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/VBox/Test1Container/StandardBox"]
+layout_mode = 2
+text = "Standard TextEdit (BROKEN)"
+
+[node name="StandardTextEdit" type="TextEdit" parent="ScrollContainer/VBox/Test1Container/StandardBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+placeholder_text = "Type here (standard TextEdit)..."
+
+[node name="FixedBox" type="VBoxContainer" parent="ScrollContainer/VBox/Test1Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/VBox/Test1Container/FixedBox"]
+layout_mode = 2
+text = "MobileTextEdit (FIXED)"
+
+[node name="MobileTextEdit" type="Control" parent="ScrollContainer/VBox/Test1Container/FixedBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("2")
+placeholder_text = "Type here (fixed)..."
+
+[node name="HSeparator2" type="HSeparator" parent="ScrollContainer/VBox"]
+layout_mode = 2
+
+[node name="Section2Label" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "TEST 2: Inside SubViewport (Issue #108355)"
+
+[node name="Test2Container" type="HBoxContainer" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="StandardSubBox" type="VBoxContainer" parent="ScrollContainer/VBox/Test2Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/VBox/Test2Container/StandardSubBox"]
+layout_mode = 2
+text = "Standard in SubViewport (BROKEN)"
+
+[node name="SubViewportContainer1" type="SubViewportContainer" parent="ScrollContainer/VBox/Test2Container/StandardSubBox"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="ScrollContainer/VBox/Test2Container/StandardSubBox/SubViewportContainer1"]
+handle_input_locally = false
+size = Vector2i(400, 120)
+render_target_update_mode = 4
+
+[node name="StandardTextEditSub" type="TextEdit" parent="ScrollContainer/VBox/Test2Container/StandardSubBox/SubViewportContainer1/SubViewport"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+placeholder_text = "SubViewport standard (broken)..."
+
+[node name="FixedSubBox" type="VBoxContainer" parent="ScrollContainer/VBox/Test2Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/VBox/Test2Container/FixedSubBox"]
+layout_mode = 2
+text = "MobileTextEdit in SubViewport (FIXED)"
+
+[node name="SubViewportContainer2" type="SubViewportContainer" parent="ScrollContainer/VBox/Test2Container/FixedSubBox"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="ScrollContainer/VBox/Test2Container/FixedSubBox/SubViewportContainer2"]
+handle_input_locally = false
+size = Vector2i(400, 120)
+render_target_update_mode = 4
+
+[node name="MobileTextEditSub" type="Control" parent="ScrollContainer/VBox/Test2Container/FixedSubBox/SubViewportContainer2/SubViewport"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2")
+placeholder_text = "SubViewport fixed..."
+
+[node name="HSeparator3" type="HSeparator" parent="ScrollContainer/VBox"]
+layout_mode = 2
+
+[node name="OutputLabel" type="Label" parent="ScrollContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Output Log:"
+
+[node name="OutputText" type="RichTextLabel" parent="ScrollContainer/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+text = "Waiting for input..."
