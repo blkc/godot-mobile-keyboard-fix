@@ -19,6 +19,7 @@
             align-items: center;
         }
         #status-progress { width: 50%; max-width: 300px; }
+        #status-notice { display: none; color: red; }
     </style>
     $GODOT_HEAD_INCLUDE
 </head>
@@ -27,7 +28,7 @@
 
     <div id="status">
         <progress id="status-progress"></progress>
-        <div id="status-notice" style="display: none;"></div>
+        <div id="status-notice"></div>
     </div>
 
     <script src="$GODOT_URL"></script>
@@ -105,27 +106,32 @@
             }
         };
 
-        var GODOT_CONFIG = $GODOT_CONFIG;
-        var engine = new Engine(GODOT_CONFIG);
-        var statusProgress = document.getElementById('status-progress');
-        var statusNotice = document.getElementById('status-notice');
-        var status = document.getElementById('status');
+        (function() {
+            var statusProgress = document.getElementById('status-progress');
+            var statusNotice = document.getElementById('status-notice');
+            var status = document.getElementById('status');
 
-        engine.startGame({
-            'onProgress': function(current, total) {
-                if (total > 0) {
-                    statusProgress.value = current;
-                    statusProgress.max = total;
+            var GODOT_CONFIG = $GODOT_CONFIG;
+            var engine = new Engine(GODOT_CONFIG);
+
+            engine.startGame({
+                'onProgress': function(current, total) {
+                    if (total > 0 && statusProgress) {
+                        statusProgress.value = current;
+                        statusProgress.max = total;
+                    }
                 }
-            }
-        }).then(function() {
-            status.style.display = 'none';
-        }).catch(function(err) {
-            console.error(err);
-            statusNotice.textContent = err.message || 'Error loading';
-            statusNotice.style.display = 'block';
-            statusProgress.style.display = 'none';
-        });
+            }).then(function() {
+                if (status) status.style.display = 'none';
+            }).catch(function(err) {
+                console.error(err);
+                if (statusNotice) {
+                    statusNotice.textContent = err.message || 'Error loading';
+                    statusNotice.style.display = 'block';
+                }
+                if (statusProgress) statusProgress.style.display = 'none';
+            });
+        })();
     </script>
 </body>
 </html>
